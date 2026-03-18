@@ -1,22 +1,4 @@
-import { campaignApi } from './client';
-
-export type CampaignStatus = 'ON' | 'OFF';
-
-export interface Campaign {
-  id: number;
-  productId: number;
-  accountId: number;
-  name: string;
-  keywords: string[];
-  bidAmount: number;
-  campaignFund: number;
-  status: CampaignStatus;
-  town: string;
-  radiusInKm: number;
-}
-
 export interface CreateCampaignRequest {
-  productId: number;
   accountId: number;
   name: string;
   keywords: string[];
@@ -42,6 +24,10 @@ export interface PageResponse<T> {
   totalElements: number;
   size: number;
   number: number;
+  first?: boolean;
+  last?: boolean;
+  numberOfElements?: number;
+  empty?: boolean;
 }
 
 export interface SearchParams {
@@ -52,19 +38,34 @@ export interface SearchParams {
   size?: number;
 }
 
+export interface CampaignListParams {
+  page?: number;
+  size?: number;
+}
+
 export const campaignService = {
   async getAll(): Promise<Campaign[]> {
     const response = await campaignApi.get<Campaign[]>('/campaigns');
     return response.data;
   },
 
-  async getAllPublic(): Promise<Campaign[]> {
-    const response = await campaignApi.get<Campaign[]>('/campaigns/view');
+  async getAllPublic(params: CampaignListParams = {}): Promise<PageResponse<Campaign>> {
+    const response = await campaignApi.get<PageResponse<Campaign>>('/campaigns/view', {
+      params: {
+        page: params.page ?? 0,
+        size: params.size ?? 12,
+      },
+    });
     return response.data;
   },
 
-  async getAllForUser(): Promise<Campaign[]> {
-    const response = await campaignApi.get<Campaign[]>('/campaigns/all');
+  async getAllForUser(params: CampaignListParams = {}): Promise<PageResponse<Campaign>> {
+    const response = await campaignApi.get<PageResponse<Campaign>>('/campaigns/all', {
+      params: {
+        page: params.page ?? 0,
+        size: params.size ?? 12,
+      },
+    });
     return response.data;
   },
 
@@ -89,18 +90,5 @@ export const campaignService = {
   async create(data: CreateCampaignRequest): Promise<Campaign> {
     const response = await campaignApi.post<Campaign>('/campaigns', data);
     return response.data;
-  },
-
-  async update(id: number, data: UpdateCampaignRequest): Promise<Campaign> {
-    const response = await campaignApi.patch<Campaign>(`/campaigns/${id}`, data);
-    return response.data;
-  },
-
-  async delete(id: number): Promise<void> {
-    await campaignApi.delete(`/campaigns/${id}`);
-  },
-
-  async registerClick(campaignId: number): Promise<void> {
-    await campaignApi.post(`/clicks/${campaignId}`);
   },
 };
