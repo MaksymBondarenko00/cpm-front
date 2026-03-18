@@ -1,5 +1,6 @@
 'use client';
 
+import { polishCities } from '@/lib/data/polishCities';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,7 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [clickingCampaignId, setClickingCampaignId] = useState<number | null>(null);
   const [currentAccount, setCurrentAccount] = useState<AccountResponse | null>(null);
+  const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
 
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -107,6 +109,27 @@ export default function Home() {
       setLoading(false);
     }
   }, [applyPageData]);
+
+  const handleCityChange = (value: string) => {
+
+    setTownFilter(value);
+
+    if (!value) {
+      setCitySuggestions([]);
+      return;
+    }
+
+    const filtered = polishCities
+      .filter(city => city.toLowerCase().includes(value.toLowerCase()))
+      .slice(0, 5);
+
+    setCitySuggestions(filtered);
+  };
+
+  const selectCity = (city: string) => {
+    setTownFilter(city);
+    setCitySuggestions([]);
+  };
 
   const handleSearch = useCallback(async (page = 0) => {
     if (!searchQuery.trim()) {
@@ -354,13 +377,36 @@ export default function Home() {
                     <Label htmlFor="town" className="sr-only">Town</Label>
                     <div className="relative">
                       <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+
                       <Input
                         id="town"
                         placeholder="Town (optional)"
                         value={townFilter}
-                        onChange={(e) => setTownFilter(e.target.value)}
+                        onFocus={() => setCitySuggestions(polishCities)}
+                        onBlur={() => setTimeout(() => setCitySuggestions([]), 200)}
+                        onChange={(e) => handleCityChange(e.target.value)}
                         className="pl-10"
                       />
+
+                      {citySuggestions.length > 0 && (
+
+                        <div className="absolute left-0 top-full mt-1 z-[50] w-full rounded-md border bg-background shadow-md max-h-[160px] overflow-y-auto">
+
+                          {citySuggestions.map((city) => (
+
+                            <div
+                              key={city}
+                              className="cursor-pointer px-3 py-2 hover:bg-muted"
+                              onMouseDown={() => selectCity(city)}
+                            >
+                              {city}
+                            </div>
+
+                          ))}
+
+                        </div>
+
+                      )}
                     </div>
                   </div>
 
@@ -373,6 +419,7 @@ export default function Home() {
                       value={radiusFilter}
                       onChange={(e) => setRadiusFilter(e.target.value)}
                       min={0}
+                      disabled={!townFilter}
                     />
                   </div>
                 </div>
@@ -460,11 +507,10 @@ export default function Home() {
                         <CardTitle className="text-lg">{campaign.name}</CardTitle>
 
                         <span
-                          className={`rounded-full px-2 py-1 text-xs font-medium ${
-                            campaign.status === 'ON'
-                              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                              : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                          }`}
+                          className={`rounded-full px-2 py-1 text-xs font-medium ${campaign.status === 'ON'
+                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                            }`}
                         >
                           {campaign.status}
                         </span>
@@ -519,10 +565,10 @@ export default function Home() {
                           {clickingCampaignId === campaign.id
                             ? 'Clicking...'
                             : isOwnCampaign
-                            ? 'Your Campaign'
-                            : !isLoggedIn
-                            ? 'Login to Click'
-                            : 'Click'}
+                              ? 'Your Campaign'
+                              : !isLoggedIn
+                                ? 'Login to Click'
+                                : 'Click'}
                         </Button>
                       </div>
                     </CardContent>

@@ -17,10 +17,20 @@ api.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
-      if (token) {
+
+      const url = config.url || '';
+
+      const isAuthRequest =
+        url.includes('/auth/login') ||
+        url.includes('/auth/register') ||
+        url.includes('/login') ||
+        url.includes('/register');
+
+      if (token && !isAuthRequest) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
+
     return config;
   },
   (error) => Promise.reject(error)

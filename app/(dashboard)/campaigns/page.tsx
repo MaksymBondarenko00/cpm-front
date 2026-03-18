@@ -1,5 +1,6 @@
 'use client';
 
+import { CampaignStatus } from '@/lib/api/campaigns';
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/layout/header';
 import { Button } from '@/components/ui/button';
@@ -75,14 +76,26 @@ export default function CampaignsPage() {
     data: CreateCampaignRequest | UpdateCampaignRequest,
     isEdit: boolean
   ) => {
+
     if (isEdit && editingCampaign) {
-      await campaignService.update(editingCampaign.id, data as UpdateCampaignRequest);
+
+      await campaignService.update(
+        editingCampaign.id,
+        data as UpdateCampaignRequest
+      )
+
     } else {
-      await campaignService.create(data as CreateCampaignRequest);
+
+      await campaignService.create(
+        data as CreateCampaignRequest
+      )
+
     }
-    await fetchData();
-    await refreshAccount();
-  };
+
+    await fetchData()
+    await refreshAccount()
+
+  }
 
   const handleDelete = async () => {
     if (campaignToDelete) {
@@ -95,9 +108,19 @@ export default function CampaignsPage() {
   };
 
   const handleToggleStatus = async (campaign: Campaign) => {
-    const newStatus = campaign.status === 'ON' ? 'OFF' : 'ON';
-    await campaignService.update(campaign.id, { status: newStatus });
+
+    const newStatus =
+      campaign.status === CampaignStatus.ON
+        ? CampaignStatus.OFF
+        : CampaignStatus.ON;
+
+    await campaignService.update(campaign.id, {
+      status: newStatus,
+    });
+
     await fetchData();
+    await refreshAccount();
+
   };
 
   const confirmDelete = (campaign: Campaign) => {
@@ -171,11 +194,10 @@ export default function CampaignsPage() {
                     <TableCell>${campaign.campaignFund.toFixed(2)}</TableCell>
                     <TableCell>
                       <span
-                        className={`rounded-full px-2 py-1 text-xs ${
-                          campaign.status === 'ON'
-                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                        }`}
+                        className={`rounded-full px-2 py-1 text-xs ${campaign.status === 'ON'
+                          ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                          : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                          }`}
                       >
                         {campaign.status}
                       </span>
@@ -189,6 +211,11 @@ export default function CampaignsPage() {
                           size="icon"
                           onClick={() => handleToggleStatus(campaign)}
                           title={campaign.status === 'ON' ? 'Turn OFF' : 'Turn ON'}
+                          className={
+                            campaign.status === 'ON'
+                              ? "text-green-600"
+                              : "text-red-600"
+                          }
                         >
                           <Power className="h-4 w-4" />
                         </Button>

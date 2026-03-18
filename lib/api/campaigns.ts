@@ -1,11 +1,32 @@
+import { campaignApi } from "./client";
+
+export enum CampaignStatus {
+  ON = "ON",
+  OFF = "OFF",
+}
+
+export interface Campaign {
+  id: number
+  accountId: number
+  productId: number
+  name: string
+  keywords: string[]
+  bidAmount: number
+  campaignFund: number
+  status: CampaignStatus
+  town?: string
+  radiusInKm: number
+}
+
 export interface CreateCampaignRequest {
-  accountId: number;
-  name: string;
-  keywords: string[];
-  bidAmount: number;
-  campaignFund: number;
-  town?: string;
-  radiusInKm: number;
+  accountId: number
+  productId: number
+  name: string
+  keywords: string[]
+  bidAmount: number
+  campaignFund: number
+  town?: string
+  radiusInKm: number
 }
 
 export interface UpdateCampaignRequest {
@@ -44,6 +65,7 @@ export interface CampaignListParams {
 }
 
 export const campaignService = {
+
   async getAll(): Promise<Campaign[]> {
     const response = await campaignApi.get<Campaign[]>('/campaigns');
     return response.data;
@@ -75,8 +97,8 @@ export const campaignService = {
         query: params.query,
         town: params.town || undefined,
         radius: params.radius || undefined,
-        page: params.page || 0,
-        size: params.size || 20,
+        page: params.page ?? 0,
+        size: params.size ?? 20,
       },
     });
     return response.data;
@@ -91,4 +113,18 @@ export const campaignService = {
     const response = await campaignApi.post<Campaign>('/campaigns', data);
     return response.data;
   },
+
+  async update(id: number, data: UpdateCampaignRequest): Promise<Campaign> {
+    const response = await campaignApi.patch<Campaign>(`/campaigns/${id}`, data);
+    return response.data;
+  },
+
+  async delete(id: number): Promise<void> {
+    await campaignApi.delete(`/campaigns/${id}`);
+  },
+
+  async registerClick(campaignId: number): Promise<void> {
+    await campaignApi.post(`/clicks/${campaignId}`);
+  },
+
 };

@@ -104,7 +104,7 @@ export function AuthModal({ open, onOpenChange, onLoginSuccess }: AuthModalProps
         )}
 
         {mode === 'login' ? (
-          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+          <form onSubmit={handleLogin} autoComplete="on" className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <Label htmlFor="login-email">Email</Label>
               <Input
@@ -140,8 +140,7 @@ export function AuthModal({ open, onOpenChange, onLoginSuccess }: AuthModalProps
             </p>
           </form>
         ) : (
-          <form onSubmit={handleRegister} className="flex flex-col gap-4">
-            <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleRegister} autoComplete="on" className="flex flex-col gap-4">            <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
                 <Label htmlFor="register-firstName">First Name</Label>
                 <Input
@@ -184,7 +183,7 @@ export function AuthModal({ open, onOpenChange, onLoginSuccess }: AuthModalProps
               <Input
                 id="register-password"
                 type="password"
-                name="newPassword"
+                name="password"
                 autoComplete="new-password"
                 value={registerForm.password}
                 onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })}
