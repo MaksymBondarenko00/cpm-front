@@ -72,7 +72,7 @@ export const campaignService = {
   },
 
   async getAllPublic(params: CampaignListParams = {}): Promise<PageResponse<Campaign>> {
-    const response = await campaignApi.get<PageResponse<Campaign>>('/campaigns/view', {
+    const response = await campaignApi.get<PageResponse<Campaign>>('/campaigns/all', {
       params: {
         page: params.page ?? 0,
         size: params.size ?? 12,
@@ -82,7 +82,7 @@ export const campaignService = {
   },
 
   async getAllForUser(params: CampaignListParams = {}): Promise<PageResponse<Campaign>> {
-    const response = await campaignApi.get<PageResponse<Campaign>>('/campaigns/all', {
+    const response = await campaignApi.get<PageResponse<Campaign>>('/campaigns/view', {
       params: {
         page: params.page ?? 0,
         size: params.size ?? 12,
